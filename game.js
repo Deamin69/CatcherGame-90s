@@ -20,7 +20,8 @@ let esineNopeus = 3;
 let pisteet = 0;
 let missit = 0;
 let maksimiMissit = 3;
-let pelikaynnissa = true;
+let pelikaynnissa = false;
+let peliAloitettu = false;
 let taso = 0;
 let aanetPaalla = true;
 let uusiEnnatysEfektiKoko = 1;
@@ -224,6 +225,7 @@ document.addEventListener("keydown", function (e) {
 
     if (e.key == " " && pelikaynnissa == false) {
         e.preventDefault();
+        peliAloitettu = true;
 
         pisteet = 0;
         missit = 0;
@@ -246,7 +248,6 @@ document.addEventListener("keydown", function (e) {
         melodiaIndeksi = 0;
         taustaMusiikkiAjastin = setInterval(soitaTaustaMusiikki, 360);
 
-        gameLoop();
     }
 });
 
@@ -286,34 +287,116 @@ function PiirraNeonKehys() {
     context.restore();
 }
 
+function aloitaUusiPeli() {
+    pisteet = 0;
+    missit = 0;
+    pudotusNopeus = 2;
+    koriX = canvas, width / 2 - koriLeveys / 2;
+
+    esineY = 0;
+    esineX = Math.random() * (canvas.width - esineSade * 2) + esineSade;
+
+    peliAloitettu = true;
+    pelikaynnissa = true;
+}
+
 function gameLoop() {
     if (pelikaynnissa == false) {
-        context.fillStyle = "rgba(0, 0, 0, 0.75)";
+        piirraTahdet();
+
+        // Etusivun tausta
+        context.fillStyle = "rgba(16, 20, 41, 0.85)";
         context.fillRect(0, 0, canvas.width, canvas.height);
 
-        //Game Over
-        context.fillStyle = "#e9c46a";
-        context.font = "bold 24px 'Courier New', monospace";
-        context.textAlign = "center";
-        context.fillText("GAME OVER", canvas.width / 2, canvas.height / 2 - 10);
+        //Animaatiolaskuri
+        const aika = Date.now() * 0.003;
+        const hohtoSyke = Math.sin(aika) * 6 + 14;
+        const vilkkuu = Math.floor(Date.now() / 400) % 2 === 0;
 
-        context.fillStyle = "#f4a261";
-        context.font = "14px 'Courier New', monospace";
-        context.fillText("Paina välilyöntiä aloittaaksesi!", canvas.width / 2, canvas.height / 2 + 25);
 
-        // Uusi ennätys tekstin ulkoasu
-        if (paivitettyUusiEnnatys && !pelikaynnissa) {
+        if (!peliAloitettu) {
             context.save();
-            context.font = "bold 20px 'Courier New', monospace";
-            context.fillStyle = "#70d6ff";
-            context.shadowBlur = 21;
-            context.shadowColor = "#e9c46a";
             context.textAlign = "center";
-            context.fillText("🎆 UUSI ENNÄTYS! 🎆", canvas.width / 2, 90);
-            context.restore();
-        }
+            context.font = "bold 25px 'Courier New', monospace";
+            context.fillStyle = "#e76f51";
+            context.fillText("RETRO CATCHER '90", canvas.width / 2 + 2, canvas.height / 2 - 43);
 
+            //Pääotsikkko
+
+            context.fillStyle = "#70d6ff";
+            context.shadowBlur = hohtoSyke;
+            context.shadowColor = "#70d6ff";
+            context.fillText("RETRO CATCHER '90", canvas.width / 2, canvas.height / 2 - 45);
+            context.restore();
+
+            context.save();
+            context.strokeStyle = "#e9c46a";
+            context.lineWidth = 2;
+            context.beginPath();
+            context.moveTo(canvas.width / 2 - 110, canvas.height / 2 - 32);
+            context.lineTo(canvas.width / 2 + 110, canvas.height / 2 - 32);
+            context.stroke();
+            context.restore();
+
+            // Paras tulos
+            context.save();
+            context.textAlign = "center";
+            context.font = "12px 'Courier New', monospace";
+            context.fillStyle = "#e9c46a";
+            context.fillText(`✨ PARAS TULOS: ${parastulos} ✨`, canvas.width / 2, canvas.height / 2 - 10);
+            context.restore();
+
+            // Vilkkuva "Paina välilyöntiä"
+            if (vilkkuu) {
+                context.save();
+                context.textAlign = "center";
+                context.font = "bold 13px 'Courier New', monospace";
+                context.fillStyle = "#f4a261";
+                context.shadowBlur = 10;
+                context.shadowColor = "#f4a261";
+                context.fillText("PAINA VÄLILYÖNTIÄ ALOITTAAKSESI!", canvas.width / 2, canvas.height / 2 + 30);
+                context.restore();
+            }
+            // Näppäinohjeet
+            context.save();
+            context.textAlign = "center";
+            context.font = "10px 'Courier New', monospace";
+            context.fillStyle = "#a0a0b0";
+            context.fillText(" [◄] [►] Liikuta koria | [M] Äänet On/Off", canvas.width / 2, canvas.height / 2 + 75);
+            context.restore();
+
+        }
+        //Game Over
+        else {
+            context.save();
+            context.fillStyle = "#e9c46a";
+            context.font = "bold 24px 'Courier New', monospace";
+            context.textAlign = "center";
+            context.shadowBlur = hohtoSyke;
+            context.shadowColor = "#e9c46a"
+            context.fillText("GAME OVER", canvas.width / 2, canvas.height / 2 - 30);
+            context.restore();
+
+            if (vilkkuu) {
+                context.fillStyle = "#f4a261";
+                context.font = "13px 'Courier New', monospace";
+                context.textAlign = "center";
+                context.fillText("Paina välilyöntiä!", canvas.width / 2, canvas.height / 2 + 25);
+            }
+            // Uusi ennätys tekstin ulkoasu
+            if (paivitettyUusiEnnatys) {
+                context.save();
+                context.font = "bold 18px 'Courier New', monospace";
+                context.fillStyle = "#70d6ff";
+                context.shadowBlur = 15;
+                context.shadowColor = "#70d6ff";
+                context.textAlign = "center";
+                context.fillText("🎆 UUSI ENNÄTYS! 🎆", canvas.width / 2, 80);
+                context.restore();
+            }
+        }
         PiirraNeonKehys();
+        requestAnimationFrame(gameLoop);
         return;
     }
 
