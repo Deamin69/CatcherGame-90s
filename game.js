@@ -259,6 +259,9 @@ canvas.addEventListener("pointerdown", function (e) {
     if (kosketusX > canvas.width - 160 && kosketusY < 40) {
         aanetPaalla = !aanetPaalla;
     }
+    else if (!pelikaynnissa) {
+        document.dispatchEvent(new KeyboardEvent("keydown", { key: " " }));
+    }
 });
 
 //Piirtofunktio
@@ -354,7 +357,7 @@ function gameLoop() {
                 context.fillStyle = "#f4a261";
                 context.shadowBlur = 10;
                 context.shadowColor = "#f4a261";
-                context.fillText("PAINA VÄLILYÖNTIÄ ALOITTAAKSESI!", canvas.width / 2, canvas.height / 2 + 30);
+                context.fillText("ALOITA PELI!", canvas.width / 2, canvas.height / 2 + 30);
                 context.restore();
             }
             // Näppäinohjeet
@@ -362,10 +365,19 @@ function gameLoop() {
             context.textAlign = "center";
             context.font = "10px 'Courier New', monospace";
             context.fillStyle = "#a0a0b0";
-            context.fillText(" [◄] [►] Liikuta koria | [M] Äänet On/Off", canvas.width / 2, canvas.height / 2 + 75);
+            context.fillText(" [◄] [►] Liikuta koria | [M] / [KOSKETA] Äänet On/Off ", canvas.width / 2, canvas.height / 2 + 75);
             context.restore();
 
+            // Ohje aloittamiseen
+            context.save();
+            context.textAlign = "center";
+            context.font = "11px 'Courier New', monospace";
+            context.fillStyle = "#a0a0b0";
+            context.fillText(" [Paina välilyöntiä tai klikkaa aloittaaksesi!] ", canvas.width / 2, canvas.height / 2 + 100);
+            context.restore();
         }
+
+
         //Game Over
         else {
             context.save();
@@ -381,7 +393,7 @@ function gameLoop() {
                 context.fillStyle = "#f4a261";
                 context.font = "13px 'Courier New', monospace";
                 context.textAlign = "center";
-                context.fillText("Paina välilyöntiä!", canvas.width / 2, canvas.height / 2 + 25);
+                context.fillText("Paina välilyöntiä tai klikkaa!", canvas.width / 2, canvas.height / 2 + 25);
             }
             // Uusi ennätys tekstin ulkoasu
             if (paivitettyUusiEnnatys) {
