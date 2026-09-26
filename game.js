@@ -393,7 +393,7 @@ function gameLoop() {
                 context.fillStyle = "#f4a261";
                 context.font = "13px 'Courier New', monospace";
                 context.textAlign = "center";
-                context.fillText("Paina välilyöntiä tai klikkaa!", canvas.width / 2, canvas.height / 2 + 25);
+                context.fillText("Paina välilyöntiä tai klikkaa jatkaaksesi!", canvas.width / 2, canvas.height / 2 + 25);
             }
             // Uusi ennätys tekstin ulkoasu
             if (paivitettyUusiEnnatys) {
