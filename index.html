@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="fi">
-
+ 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,7 +11,7 @@
             margin: 0;
             padding: 0;
         }
-
+ 
         body {
             background-color: #141419;
             color: #e9c46a;
@@ -21,26 +21,28 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+            min-height: 100dvh;
             overflow: hidden;
+            touch-action: none;          
         }
-
+ 
         h1 {
-            font-size: 3.8rem;
+            /* MOBIILIA: otsikko pienenee kapealla ruudulla */
+            font-size: clamp(1.4rem, 7vw, 3.8rem);
             font-weight: 900;
             color: #70d6ff;
             text-transform: uppercase;
-            letter-spacing: 6px;
-
+            letter-spacing: clamp(1px, 1vw, 6px);
+ 
             text-shadow: 2px 2px 0px #0077b6,
                 4px 4px 0px #f4a261,
                 6px 6px 0px #141419,
                 8px 8px 12px rgba(0, 0, 0, 0.7);
-
+ 
             margin-top: 25px;
-            margin-bottom: 45px;
-
+            margin-bottom: clamp(15px, 4vw, 45px);
         }
-
+ 
         /*Pelin kehys*/
         .arcade-capinet {
             position: relative;
@@ -50,33 +52,94 @@
             border-radius: 12px;
             box-shadow: 0 0 12px rgba(233, 196, 106, 0.2);
         }
-
+ 
         #gameCanvas {
             display: block;
-            width: 800px;
-            height: 640px;
+            /* MOBIILI: kiinteä ruutu skaalautuu ruudun mukaan: max 800px */
+            width: min(calc(100vw - 54px), 800px);
+            height: auto;                
             image-rendering: pixelated;
             border: 2px solid #f4a261;
+            touch-action: none;
         }
-
+ 
         .ohjeet {
             margin-top: 15px;
             color: #a0a0b0;
             font-size: 0.9rem;
+            text-align: center;
+            padding: 0 10px;
+        }
+ 
+        /* MOBIILIA: kosketusnapit */
+        #ohjaimet {
+            display: flex;
+            gap: 12px;
+            width: min(100%, 830px);
+            padding: 10px 12px;
+        }
+ 
+        #ohjaimet button {
+            flex: 1;                     /* napit jakaa tilan */
+            height: 80px;                
+            font-size: 36px;
+            color: #70d6ff;
+            background: #1c1c24;
+            border: 3px solid #f4a261;
+            border-radius: 12px;
+            touch-action: none;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+ 
+        #ohjaimet button:active {
+            background: #f4a261;
+            color: #141419;
+        }
+ 
+        /* Tietokoneella pelatessa mobiilinapit piilotetaan */
+        @media (hover: hover) and (pointer: fine) {
+            #ohjaimet {
+                display: none;
+            }
+        }
+ 
+        /* Vaakasuuntasessa näytössä piilotetaan otsikko ja ohjeet, jotta kaikki mahtuu */
+        @media (orientation: landscape) and (max-height: 500px) {
+            h1,
+            .ohjeet {
+                display: none;
+            }
+ 
+            #gameCanvas {
+                width: min(calc(100vw - 54px), calc((100dvh - 120px) * 1.25));
+            }
+ 
+            #ohjaimet button {
+                height: 56px;
+            }
         }
     </style>
 </head>
-
+ 
 <body>
     <h1>RETRO CATCHER '90</h1>
-
+ 
     <div class="arcade-capinet">
         <canvas id="gameCanvas" width="400" height="320"></canvas>
     </div>
-
+ 
+    <!-- Mobiili napit -->
+    <div id="ohjaimet">
+        <button id="vasenNappi">◄</button>
+        <button id="oikeaNappi">►</button>
+    </div>
+ 
     <p class="ohjeet">5 MK / PELI • KONE EI PALAUTA VÄÄRIÄ MARKKOJA</p>
-
-    <script src="game.js"> </script>
+ 
+    <script src="game.js"></script>
 </body>
-
+ 
 </html>

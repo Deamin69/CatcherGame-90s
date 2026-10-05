@@ -1,9 +1,12 @@
 const canvas = document.getElementById("gameCanvas");
 const context = canvas.getContext("2d");
 
+// Mobiiliruudun kosketusnapit
+const vasenNappi = document.getElementById("vasenNappi");
+const oikeaNappi = document.getElementById("oikeaNappi");
+
 let oikeaPainettu = false;
 let vasenPainettu = false;
-
 
 let koriX = 210;
 let koriY = 290;
@@ -61,8 +64,7 @@ const melodia = [
     { freq: 294, kesto: 0.2 }, //D4
     { freq: 392, kesto: 0.2 }, //G4
     { freq: 294, kesto: 0.2 }, //D4
-    { freq: 247, kesto: 0.2 }  //B3
-
+    { freq: 247, kesto: 0.2 }, //B3
 ];
 
 let melodiaIndeksi = 0;
@@ -82,10 +84,8 @@ function alustaAani() {
     }
 }
 
-["keydown", "click", "touchstart"].forEach(event => {
-    window.addEventListener(event, alustaAani, {
-        once: false
-    });
+["keydown", "click", "touchstart"].forEach((event) => {
+    window.addEventListener(event, alustaAani, { once: false });
 });
 
 function soitaTaustaMusiikki() {
@@ -101,7 +101,10 @@ function soitaTaustaMusiikki() {
     osc.frequency.setValueAtTime(nuotti.freq, audioCtx.currentTime);
 
     gain.gain.setValueAtTime(0.018, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + nuotti.kesto);
+    gain.gain.exponentialRampToValueAtTime(
+        0.001,
+        audioCtx.currentTime + nuotti.kesto,
+    );
 
     osc.connect(gain);
     gain.connect(audioCtx.destination);
@@ -122,7 +125,10 @@ function soitaOsumaAani() {
 
     osc.type = "square";
     osc.frequency.setValueAtTime(400, audioCtx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.08);
+    osc.frequency.exponentialRampToValueAtTime(
+        800,
+        audioCtx.currentTime + 0.08,
+    );
 
     gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
@@ -149,7 +155,7 @@ function soitaHavioAani() {
 
         osc.type = "sawtooth";
 
-        const AloitusAika = audioCtx.currentTime + (idx * nuotinKesto);
+        const AloitusAika = audioCtx.currentTime + idx * nuotinKesto;
         osc.frequency.setValueAtTime(freq, AloitusAika);
 
         if (idx === taajuudet.length - 1) {
@@ -158,10 +164,12 @@ function soitaHavioAani() {
             gain.gain.exponentialRampToValueAtTime(0.01, AloitusAika + 0.6);
             osc.start(AloitusAika);
             osc.stop(AloitusAika + 0.6);
-        }
-        else {
+        } else {
             gain.gain.setValueAtTime(0.15, AloitusAika);
-            gain.gain.exponentialRampToValueAtTime(0.01, AloitusAika + nuotinKesto);
+            gain.gain.exponentialRampToValueAtTime(
+                0.01,
+                AloitusAika + nuotinKesto,
+            );
             osc.start(AloitusAika);
             osc.stop(AloitusAika + nuotinKesto);
         }
@@ -198,7 +206,7 @@ const tahdet = Array.from({ length: 30 }, () => ({
     x: Math.random() * canvas.width,
     y: Math.random() * canvas.height,
     koko: Math.random() > 0.6 ? 2 : 1,
-    nopeus: Math.random() * 0.5 + 0.2
+    nopeus: Math.random() * 0.5 + 0.2,
 }));
 
 document.addEventListener("keydown", function (e) {
@@ -217,6 +225,32 @@ document.addEventListener("keyup", function (e) {
     }
 });
 
+// MOBIILIA:
+function aloitaPeli() {
+    peliAloitettu = true;
+
+    pisteet = 0;
+    missit = 0;
+    taso = 0;
+    esineNopeus = 3;
+    koriNopeus = 7;
+    paivitettyUusiEnnatys = false;
+    uusiEnnatysAjastin = 0;
+
+    // Palkin keskittäminen
+    koriX = (canvas.width - koriLeveys) / 2;
+
+    // Palautetaan pallo ylös satunnaiseen kohtaan
+    esineY = 0;
+    esineX = Math.random() * (canvas.width - esineSade * 2) + esineSade;
+
+    pelikaynnissa = true;
+
+    if (taustaMusiikkiAjastin) clearInterval(taustaMusiikkiAjastin);
+    melodiaIndeksi = 0;
+    taustaMusiikkiAjastin = setInterval(soitaTaustaMusiikki, 360);
+}
+
 document.addEventListener("keydown", function (e) {
     alustaAani();
     if (e.key.toLowerCase() === "m") {
@@ -225,49 +259,60 @@ document.addEventListener("keydown", function (e) {
 
     if (e.key == " " && pelikaynnissa == false) {
         e.preventDefault();
-        peliAloitettu = true;
-
-        pisteet = 0;
-        missit = 0;
-        taso = 0;
-        esineNopeus = 3;
-        koriNopeus = 7;
-        paivitettyUusiEnnatys = false;
-        uusiEnnatysAjastin = 0;
-
-        //Palkin keskittäminen
-        koriX = (canvas.width - koriLeveys) / 2;
-
-        //Palautetaan pallo ylös satunnaiseen kohtaan
-        esineY = 0;
-        esineX = Math.random() * (canvas.width - esineSade * 2) + esineSade;
-
-        pelikaynnissa = true;
-
-        if (taustaMusiikkiAjastin) clearInterval(taustaMusiikkiAjastin);
-        melodiaIndeksi = 0;
-        taustaMusiikkiAjastin = setInterval(soitaTaustaMusiikki, 360);
-
+        aloitaPeli();
     }
 });
 
+// MOBIILIA: kosketus
 canvas.addEventListener("pointerdown", function (e) {
     const rect = canvas.getBoundingClientRect();
-    const kosketusX = e.clientX - rect.left;
-    const kosketusY = e.clientY - rect.top;
+
+    const kosketusX = (e.clientX - rect.left) * (canvas.width / rect.width);
+    const kosketusY = (e.clientY - rect.top) * (canvas.height / rect.height);
 
     if (kosketusX > canvas.width - 160 && kosketusY < 40) {
         aanetPaalla = !aanetPaalla;
+    } else if (pelikaynnissa == false) {
+        aloitaPeli();
     }
-    else if (!pelikaynnissa) {
-        document.dispatchEvent(new KeyboardEvent("keydown", { key: " " }));
-    }
+});
+
+// MOBIILIA: ruudun napit yhdistetään vasenPainettu / oikeaPainettu -muuttujiin
+function kytkeNappi(nappi, asetaTila) {
+    nappi.addEventListener("pointerdown", function (e) {
+        e.preventDefault();
+
+        nappi.setPointerCapture(e.pointerId);
+        alustaAani();
+        asetaTila(true);
+    });
+
+    nappi.addEventListener("pointerup", function () {
+        asetaTila(false);
+    });
+
+    // Jos selain keskeyttää kosketuksen (vaikkapa puhelu), nappi ei jää jumiin
+    nappi.addEventListener("pointercancel", function () {
+        asetaTila(false);
+    });
+
+    // Pitkä painallus ei avaa valikkoa
+    nappi.addEventListener("contextmenu", function (e) {
+        e.preventDefault();
+    });
+}
+
+kytkeNappi(vasenNappi, function (tila) {
+    vasenPainettu = tila;
+});
+kytkeNappi(oikeaNappi, function (tila) {
+    oikeaPainettu = tila;
 });
 
 //Piirtofunktio
 function piirraTahdet() {
     context.fillStyle = "#ffffff";
-    tahdet.forEach(tahti => {
+    tahdet.forEach((tahti) => {
         context.fillRect(tahti.x, tahti.y, tahti.koko, tahti.koko);
         tahti.y += tahti.nopeus;
 
@@ -290,19 +335,6 @@ function PiirraNeonKehys() {
     context.restore();
 }
 
-function aloitaUusiPeli() {
-    pisteet = 0;
-    missit = 0;
-    pudotusNopeus = 2;
-    koriX = canvas, width / 2 - koriLeveys / 2;
-
-    esineY = 0;
-    esineX = Math.random() * (canvas.width - esineSade * 2) + esineSade;
-
-    peliAloitettu = true;
-    pelikaynnissa = true;
-}
-
 function gameLoop() {
     if (pelikaynnissa == false) {
         piirraTahdet();
@@ -316,20 +348,27 @@ function gameLoop() {
         const hohtoSyke = Math.sin(aika) * 6 + 14;
         const vilkkuu = Math.floor(Date.now() / 400) % 2 === 0;
 
-
         if (!peliAloitettu) {
             context.save();
             context.textAlign = "center";
             context.font = "bold 25px 'Courier New', monospace";
             context.fillStyle = "#e76f51";
-            context.fillText("RETRO CATCHER '90", canvas.width / 2 + 2, canvas.height / 2 - 43);
+            context.fillText(
+                "RETRO CATCHER '90",
+                canvas.width / 2 + 2,
+                canvas.height / 2 - 43,
+            );
 
             //Pääotsikkko
 
             context.fillStyle = "#70d6ff";
             context.shadowBlur = hohtoSyke;
             context.shadowColor = "#70d6ff";
-            context.fillText("RETRO CATCHER '90", canvas.width / 2, canvas.height / 2 - 45);
+            context.fillText(
+                "RETRO CATCHER '90",
+                canvas.width / 2,
+                canvas.height / 2 - 45,
+            );
             context.restore();
 
             context.save();
@@ -346,7 +385,11 @@ function gameLoop() {
             context.textAlign = "center";
             context.font = "12px 'Courier New', monospace";
             context.fillStyle = "#e9c46a";
-            context.fillText(`✨ PARAS TULOS: ${parastulos} ✨`, canvas.width / 2, canvas.height / 2 - 10);
+            context.fillText(
+                `✨ PARAS TULOS: ${parastulos} ✨`,
+                canvas.width / 2,
+                canvas.height / 2 - 10,
+            );
             context.restore();
 
             // Vilkkuva "Paina välilyöntiä"
@@ -357,7 +400,11 @@ function gameLoop() {
                 context.fillStyle = "#f4a261";
                 context.shadowBlur = 10;
                 context.shadowColor = "#f4a261";
-                context.fillText("ALOITA PELI!", canvas.width / 2, canvas.height / 2 + 30);
+                context.fillText(
+                    "ALOITA PELI!",
+                    canvas.width / 2,
+                    canvas.height / 2 + 30,
+                );
                 context.restore();
             }
             // Näppäinohjeet
@@ -365,7 +412,11 @@ function gameLoop() {
             context.textAlign = "center";
             context.font = "10px 'Courier New', monospace";
             context.fillStyle = "#a0a0b0";
-            context.fillText(" [◄] [►] Liikuta koria | [M] / [KOSKETA] Äänet On/Off ", canvas.width / 2, canvas.height / 2 + 75);
+            context.fillText(
+                " [◄] [►] Liikuta koria | [M] / [KOSKETA] Äänet On/Off ",
+                canvas.width / 2,
+                canvas.height / 2 + 75,
+            );
             context.restore();
 
             // Ohje aloittamiseen
@@ -373,11 +424,13 @@ function gameLoop() {
             context.textAlign = "center";
             context.font = "11px 'Courier New', monospace";
             context.fillStyle = "#a0a0b0";
-            context.fillText(" [Paina välilyöntiä tai klikkaa aloittaaksesi!] ", canvas.width / 2, canvas.height / 2 + 100);
+            context.fillText(
+                " [Paina välilyöntiä tai klikkaa aloittaaksesi!] ",
+                canvas.width / 2,
+                canvas.height / 2 + 100,
+            );
             context.restore();
         }
-
-
         //Game Over
         else {
             context.save();
@@ -385,15 +438,23 @@ function gameLoop() {
             context.font = "bold 24px 'Courier New', monospace";
             context.textAlign = "center";
             context.shadowBlur = hohtoSyke;
-            context.shadowColor = "#e9c46a"
-            context.fillText("GAME OVER", canvas.width / 2, canvas.height / 2 - 30);
+            context.shadowColor = "#e9c46a";
+            context.fillText(
+                "GAME OVER",
+                canvas.width / 2,
+                canvas.height / 2 - 30,
+            );
             context.restore();
 
             if (vilkkuu) {
                 context.fillStyle = "#f4a261";
                 context.font = "13px 'Courier New', monospace";
                 context.textAlign = "center";
-                context.fillText("Paina välilyöntiä tai klikkaa jatkaaksesi!", canvas.width / 2, canvas.height / 2 + 25);
+                context.fillText(
+                    "Paina välilyöntiä tai kosketa mobiilissa!",
+                    canvas.width / 2,
+                    canvas.height / 2 + 25,
+                );
             }
             // Uusi ennätys tekstin ulkoasu
             if (paivitettyUusiEnnatys) {
@@ -418,7 +479,8 @@ function gameLoop() {
 
     if (oikeaPainettu && koriX + koriLeveys + koriNopeus <= canvas.width) {
         koriX += koriNopeus;
-    } if (vasenPainettu && koriX - koriNopeus >= 0) {
+    }
+    if (vasenPainettu && koriX - koriNopeus >= 0) {
         koriX -= koriNopeus;
     }
     //Palkin muutos Magenta-palkkiin
@@ -453,8 +515,7 @@ function gameLoop() {
                 clearInterval(taustaMusiikkiAjastin);
                 taustaMusiikkiAjastin = null;
             }
-        }
-        else {
+        } else {
             soitaOhiAani();
         }
         //Math.random() * (...) = satunnainen luku tältä väliltä
@@ -463,7 +524,11 @@ function gameLoop() {
         esineX = Math.random() * (canvas.width - esineSade * 2) + esineSade;
     }
 
-    if (esineY + esineSade >= koriY && esineX + esineSade >= koriX && esineX - esineSade <= koriX + koriLeveys) {
+    if (
+        esineY + esineSade >= koriY &&
+        esineX + esineSade >= koriX &&
+        esineX - esineSade <= koriX + koriLeveys
+    ) {
         pisteet++; //Lisää pisteen
         soitaOsumaAani();
 
@@ -488,7 +553,6 @@ function gameLoop() {
         esineX = Math.random() * (canvas.width - esineSade * 2) + esineSade;
     }
 
-
     //Piirtää pisteet ja missit. Context muistaa fonti ja tyylin, ei tarvitse toistaa
     context.font = "20px Arial";
     context.fillStyle = "#f4a261";
@@ -498,16 +562,13 @@ function gameLoop() {
     context.fillText(`Elämät: ${missit} / ${maksimiMissit}`, 10, 40);
     context.fillText(`Ennätys: ${parastulos}`, 10, 60);
 
-
-
     context.textAlign = "right";
     context.fillStyle = "#f4a261";
-    context.font = "14px 'Courier New', monospace"
+    context.font = "14px 'Courier New', monospace";
 
     if (aanetPaalla) {
         context.fillText("Äänet: PÄÄLLÄ (M)", canvas.width - 10, 20);
-    }
-    else {
+    } else {
         context.fillText("Äänet: POIS (M)", canvas.width - 10, 20);
     }
 
@@ -517,10 +578,9 @@ function gameLoop() {
     PiirraNeonKehys();
 
     requestAnimationFrame(gameLoop);
-
 }
 
-gameLoop()
+gameLoop();
 
 // x kasvaa oikealle
 // y kasvaa alaspäin
